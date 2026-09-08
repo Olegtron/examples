@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Бронювання BK-2026-0847</title>
+  <style>
+    :root {
+      --bg: #0d0f17;
+      --card: #151822;
+      --border: #2a2f3d;
+      --text: #e8eaed;
+      --muted: #9aa0a6;
+      --accent: #5b8def;
+      --accent-hover: #4a7ad4;
+      --success: #3dd68c;
+      --warning: #f5a623;
+      --danger: #e74c3c;
+      --extra: #c4a35a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 28px 20px;
+      line-height: 1.5;
+      font-size: 15px;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      margin-bottom: 4px;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .booking-num {
+      font-size: 1.35rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: rgba(245, 166, 35, 0.12);
+      color: var(--warning);
+      border: 1px solid rgba(245, 166, 35, 0.25);
+    }
+
+    .status::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--warning);
+    }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .card-title {
+      padding: 12px 18px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      background: #12151e;
+    }
+
+    .card-body {
+      padding: 16px 18px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 8px 0;
+      gap: 16px;
+    }
+
+    .row + .row {
+      border-top: 1px solid rgba(42, 47, 61, 0.5);
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .value {
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .value.accent {
+      color: var(--accent);
+    }
+
+    .room {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+
+    .room:last-child {
+      margin-bottom: 0;
+    }
+
+    .room-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .room-name {
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: var(--accent);
+    }
+
+    .room-meal {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .room-guest {
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .room-dates {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .room-prices {
+      display: flex;
+      gap: 18px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .room-price-item {
+      font-size: 0.9rem;
+    }
+
+    .room-price-item span {
+      color: var(--muted);
+      display: block;
+      font-size: 0.75rem;
+      margin-bottom: 2px;
+    }
+
+    .room-price-item strong {
+      font-weight: 600;
+    }
+
+    .daily-prices {
+      width: 100%;
+      margin-top: 10px;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .daily-prices th {
+      text-align: left;
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.75rem;
+      padding: 4px 8px 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .daily-prices td {
+      padding: 5px 8px 5px 0;
+      border-bottom: 1px solid rgba(42, 47, 61, 0.4);
+    }
+
+    .daily-prices tr:last-child td {
+      border-bottom: none;
+    }
+
+    .daily-prices .num {
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .room-total {
+      margin-top: 12px;
+      padding: 10px 12px;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 7px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .room-total .t-item span {
+      color: var(--muted);
+      display: block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 3px;
+    }
+
+    .room-total .t-item strong {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .room-extras {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-size: 0.875rem;
+    }
+
+    .room-extras-title {
+      color: var(--warning);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+
+    .extra-row {
+      display: flex;
+      align-items: baseline;
+      padding: 3px 0;
+      gap: 8px;
+    }
+
+    .extra-row .extra-name {
+      color: var(--text);
+    }
+
+    .extra-row .extra-price {
+      color: var(--muted);
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    .internal-note {
+      border-color: #3a3f52;
+    }
+
+    .internal-note .card-title {
+      background: #1c2030;
+      color: var(--warning);
+    }
+
+    .internal-note .card-body {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .internal-note strong {
+      color: var(--text);
+    }
+
+    .card-title.warning-title {
+      color: var(--warning);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .sidebar .btn {
+      width: 100%;
+      text-align: left;
+      justify-content: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 7px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .sidebar .btn:hover {
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar .btn:active {
+      transform: none;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .sidebar .btn-success { color: var(--success); }
+    .sidebar .btn-success:hover { background: rgba(61, 214, 140, 0.1); }
+
+    .sidebar .btn-danger { color: var(--danger); }
+    .sidebar .btn-danger:hover { background: rgba(231, 76, 60, 0.1); }
+
+    .sidebar .btn-nextu { color: #a29bfe; }
+    .sidebar .btn-nextu:hover { background: rgba(108, 92, 231, 0.12); }
+
+    .sidebar .btn-primary { color: var(--accent); }
+    .sidebar .btn-primary:hover { background: rgba(91, 141, 239, 0.1); }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 6px 0;
+    }
+
+    .btn {
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-icon {
+      width: 18px;
+      text-align: center;
+      opacity: 0.7;
+      font-size: 0.9rem;
+    }
+
+    .modal-actions .btn {
+      padding: 9px 16px;
+      border-radius: 7px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      justify-content: center;
+    }
+
+    .modal-actions .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .modal-actions .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .modal-actions .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .modal-actions .btn-outline:hover {
+      border-color: var(--muted);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 480px;
+      padding: 24px;
+    }
+
+    .modal h3 {
+      font-size: 1.1rem;
+      margin-bottom: 18px;
+      font-weight: 600;
+    }
+
+    .modal label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .modal input,
+    .modal textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      margin-bottom: 14px;
+    }
+
+    .modal input:focus,
+    .modal textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .modal textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+
+    .phone-link {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .phone-link:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 720px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: static;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .sidebar .btn {
+        width: auto;
+        flex: 1 1 auto;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+      <div class="booking-num">BK-2026-0847</div>
+      <div class="status">Під запит</div>
+    </div>
+
+    <div class="main">
+
+      <div class="card">
+        <div class="card-title">Бронювання</div>
+        <div class="card-body">
+          <div class="row">
+            <span class="label">Дата створення</span>
+            <span class="value">28.08.2026, 11:42</span>
+          </div>
+          <div class="row">
+            <span class="label">Фірма</span>
+            <span class="value">TravelPro</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Готель</div>
+        <div class="card-body">
+          <div class="row">
+            <span class="label">Назва</span>
+            <span class="value accent">Київ Плаза</span>
+          </div>
+          <div class="row">
+            <span class="label">Місто</span>
+            <span class="value">Київ</span>
+          </div>
+          <div class="row">
+            <span class="label">Телефон</span>
+            <span class="value"><a class="phone-link" href="tel:+380441234567">+380 44 123 45 67</a></span>
+          </div>
+          <div class="row">
+            <span class="label">Кількість номерів</span>
+            <span class="value">1</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card internal-note">
+        <div class="card-title">🔒 Службова інформація · лише для менеджера</div>
+        <div class="card-body">
+          <p>
+            <strong>Київ Плаза</strong> — партнер за договором до 31.12.2026. Знижка 20% фіксована.
+            Зазвичай відповідають на запити протягом 2–4 годин (email: reservation@kievplaza.ua).
+            При завантаженні понад 80% можуть відмовити в Делюксі або запропонувати інший тип.
+            Ранній заїзд / пізній виїзд — лише за погодженням з готелем.
+            Не надсилати повторний запит частіше 1 разу на 3 години.
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Номери</div>
+        <div class="card-body">
+
+          <!-- Deluxe -->
+          <div class="room">
+            <div class="room-header">
+              <div>
+                <div class="room-name">Номер Делюкс</div>
+                <div class="room-meal">Харчування: Сніданок</div>
+              </div>
+              <div style="text-align: right;">
+                <div class="room-guest">Іванова Марія Олександрівна</div>
+                <div class="room-dates">06.09.2026 — 10.09.2026 · 4 ночі</div>
+              </div>
+            </div>
+
+            <table class="daily-prices">
+              <thead>
+                <tr>
+                  <th>Дата</th>
+                  <th>Стійка</th>
+                  <th>Нетто (−20%)</th>
+                  <th>Брутто (+10%)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>06.09</td>
+                  <td class="num">1 500 грн</td>
+                  <td class="num">1 200 грн</td>
+                  <td class="num">1 320 грн</td>
+                </tr>
+                <tr>
+                  <td>07.09</td>
+                  <td class="num">1 600 грн</td>
+                  <td class="num">1 280 грн</td>
+                  <td class="num">1 408 грн</td>
+                </tr>
+                <tr>
+                  <td>08.09</td>
+                  <td class="num">1 700 грн</td>
+                  <td class="num">1 360 грн</td>
+                  <td class="num">1 496 грн</td>
+                </tr>
+                <tr>
+                  <td>09.09</td>
+                  <td class="num">1 550 грн</td>
+                  <td class="num">1 240 грн</td>
+                  <td class="num">1 364 грн</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="room-extras">
+              <div class="room-extras-title">Додаткові послуги</div>
+              <div class="extra-row">
+                <span class="extra-name">Парковка · 1 місце</span>
+                <span class="extra-price">100 грн × 4 = 400 грн</span>
+              </div>
+              <div class="extra-row">
+                <span class="extra-name">Турзбір · 1</span>
+                <span class="extra-price">43 грн × 4 = 172 грн</span>
+              </div>
+            </div>
+
+            <div class="room-total">
+              <div class="t-item">
+                <span>Разом стійка</span>
+                <strong>6 350 грн</strong>
+              </div>
+              <div class="t-item">
+                <span>Разом нетто</span>
+                <strong>5 652 грн</strong>
+              </div>
+              <div class="t-item">
+                <span>Разом брутто</span>
+                <strong>6 160 грн</strong>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title warning-title">Умови скасування</div>
+        <div class="card-body">
+          <p style="color: var(--muted); font-size: 0.95rem;">
+            Безкоштовне скасування до 03.09.2026. У разі скасування пізніше — 100% вартості першої ночі кожного номера.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <aside class="sidebar">
+      <button class="btn btn-success" onclick="alert('Бронювання підтверджено')">
+        <span class="btn-icon">✓</span> Підтвердити
+      </button>
+      <button class="btn" onclick="alert('Режим зміни')">
+        <span class="btn-icon">✎</span> Змінити
+      </button>
+      <button class="btn btn-danger" onclick="if(confirm('Скасувати бронювання?')) alert('Скасовано')">
+        <span class="btn-icon">✕</span> Скасувати
+      </button>
+      <div class="sidebar-divider"></div>
+      <button class="btn btn-primary" id="btn-letter">
+        <span class="btn-icon">✉</span> Лист у готель
+      </button>
+      <button class="btn btn-nextu" onclick="alert('Надіслано в Нексту')">
+        <span class="btn-icon">↗</span> Надіслати в Нексту
+      </button>
+    </aside>
+
+  </div>
+
+  <div class="modal-overlay" id="letter-modal">
+    <div class="modal">
+      <h3>Лист у готель</h3>
+      <label for="hotel-email">Email готелю</label>
+      <input type="email" id="hotel-email" value="reservation@kievplaza.ua" placeholder="email@hotel.com">
+      <label for="letter-text">Текст листа</label>
+      <textarea id="letter-text">Доброго дня!
+
+Просимо підтвердити бронювання № BK-2026-0847:
+
+Номер Делюкс
+Гість: Іванова Марія Олександрівна
+Дати: 06.09.2026 – 10.09.2026 (4 ночі)
+Харчування: Сніданок
+Додатково: парковка, турзбір
+
+З повагою,
+TravelPro</textarea>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="btn-close-modal">Закрити</button>
+        <button class="btn btn-primary" onclick="alert('Лист надіслано'); document.getElementById('letter-modal').classList.remove('open')">Надіслати</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('letter-modal');
+    document.getElementById('btn-letter').addEventListener('click', () => {
+      modal.classList.add('open');
+    });
+    document.getElementById('btn-close-modal').addEventListener('click', () => {
+      modal.classList.remove('open');
+    });
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('open');
+    });
+  </script>
+</body>
+</html>
