@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Отели — Фильтры и таблица</title>
+  <style>
+    :root {
+      --bg: #0d0f17;
+      --card: #151822;
+      --border: #2a2f3d;
+      --text: #e8eaed;
+      --muted: #9aa0a6;
+      --accent: #5b8def;
+      --accent-hover: #4a7ad4;
+      --row-alt: #12151e;
+      --success: #3dd68c;
+      --hotel-bg: #1a1e2b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding: 20px;
+      background: var(--card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 180px;
+      flex: 1;
+    }
+
+    .filter-group label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    select, input[type="text"] {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    select:focus, input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239aa0a6' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--card);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    thead {
+      background: #1a1e2b;
+    }
+
+    th {
+      text-align: left;
+      padding: 14px 16px;
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    /* Hotel header row */
+    .hotel-row {
+      background: var(--hotel-bg);
+      cursor: pointer;
+      transition: background 0.2s;
+      user-select: none;
+    }
+
+    .hotel-row:hover {
+      background: #22283a;
+    }
+
+    .hotel-row td {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hotel-name {
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: #2a3145;
+      color: var(--accent);
+      font-size: 0.85rem;
+      transition: transform 0.25s ease, background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .hotel-row.expanded .toggle-icon {
+      transform: rotate(90deg);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .meta {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .comment {
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.9rem;
+    }
+
+    .discount-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      background: rgba(61, 214, 140, 0.15);
+      color: var(--success);
+    }
+
+    /* Room detail rows (hidden by default) */
+    .room-row {
+      display: none;
+      background: var(--card);
+    }
+
+    .room-row.visible {
+      display: table-row;
+    }
+
+    .room-row:nth-child(even) {
+      background: var(--row-alt);
+    }
+
+    .room-row td {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .room-type {
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .price-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .price-line {
+      font-size: 0.9rem;
+    }
+
+    .price-label {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .discount {
+      font-weight: 600;
+      color: var(--success);
+      font-size: 1.05rem;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--muted);
+    }
+
+    .rooms-count {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-left: 8px;
+    }
+
+    @media (max-width: 700px) {
+      .filters {
+        flex-direction: column;
+      }
+      th, td {
+        padding: 10px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Отели</h1>
+
+    <div class="filters">
+      <div class="filter-group">
+        <label for="country">Страна</label>
+        <select id="country">
+          <option value="">Все страны</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="city">Город</label>
+        <select id="city">
+          <option value="">Все города</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="search">Поиск по названию отеля</label>
+        <input type="text" id="search" placeholder="Введите название отеля...">
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Отель / Номер</th>
+            <th>Цена стойки (rack)</th>
+            <th>Цена нетто</th>
+            <th>Скидка</th>
+            <th>Комментарий</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+      </table>
+      <div id="no-results" class="no-results" style="display: none;">
+        Ничего не найдено
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Скидка: отели Киева — 20%, отели Одессы — 10%
+    // Цены нетто рассчитаны от стойки с этой скидкой
+    const hotels = [
+      {
+        id: "hotel1",
+        name: "Киев Плаза",
+        country: "Украина",
+        city: "Киев",
+        discountPercent: 20,
+        rooms: [
+          {
+            type: "Номер Стандарт",
+            rack: { single: 1000, double: 1500, breakfast: "отдельно 200 грн" },
+            net:  { single: 800,  double: 1200, breakfast: "отдельно 200 грн" }
+          },
+          {
+            type: "Номер Комфорт",
+            rack: { single: 1300, double: 1800, breakfast: "отдельно 250 грн" },
+            net:  { single: 1040, double: 1440, breakfast: "отдельно 250 грн" }
+          },
+          {
+            type: "Номер Делюкс",
+            rack: { single: 1700, double: 2300, breakfast: "входит в стоимость" },
+            net:  { single: 1360, double: 1840, breakfast: "входит в стоимость" }
+          },
+          {
+            type: "Номер Семейный",
+            rack: { single: 1900, double: 2600, breakfast: "входит в стоимость" },
+            net:  { single: 1520, double: 2080, breakfast: "входит в стоимость" }
+          }
+        ],
+        comment: "тестовый комментарий"
+      },
+      {
+        id: "hotel2",
+        name: "Днепр Резиденс",
+        country: "Украина",
+        city: "Киев",
+        discountPercent: 20,
+        rooms: [
+          {
+            type: "Номер Стандарт",
+            rack: { single: 950, double: 1400, breakfast: "отдельно 180 грн" },
+            net:  { single: 760,  double: 1120, breakfast: "отдельно 180 грн" }
+          },
+          {
+            type: "Номер Комфорт",
+            rack: { single: 1250, double: 1750, breakfast: "отдельно 220 грн" },
+            net:  { single: 1000, double: 1400, breakfast: "отдельно 220 грн" }
+          },
+          {
+            type: "Номер Бизнес",
+            rack: { single: 1600, double: 2100, breakfast: "входит в стоимость" },
+            net:  { single: 1280, double: 1680, breakfast: "входит в стоимость" }
+          },
+          {
+            type: "Номер Люкс",
+            rack: { single: 2200, double: 2800, breakfast: "входит в стоимость" },
+            net:  { single: 1760, double: 2240, breakfast: "входит в стоимость" }
+          }
+        ],
+        comment: "тестовый комментарий"
+      },
+      {
+        id: "hotel3",
+        name: "Черное Море",
+        country: "Украина",
+        city: "Одесса",
+        discountPercent: 10,
+        rooms: [
+          {
+            type: "Номер Стандарт",
+            rack: { single: 1100, double: 1600, breakfast: "отдельно 180 грн" },
+            net:  { single: 990,  double: 1440, breakfast: "отдельно 180 грн" }
+          },
+          {
+            type: "Номер Полулюкс",
+            rack: { single: 1600, double: 2000, breakfast: "входит в стоимость" },
+            net:  { single: 1440, double: 1800, breakfast: "входит в стоимость" }
+          },
+          {
+            type: "Номер Люкс",
+            rack: { single: 2000, double: 2200, breakfast: "входит в стоимость" },
+            net:  { single: 1800, double: 1980, breakfast: "входит в стоимость" }
+          },
+          {
+            type: "Номер Президентский",
+            rack: { single: 3500, double: 4000, breakfast: "входит в стоимость" },
+            net:  { single: 3150, double: 3600, breakfast: "входит в стоимость" }
+          }
+        ],
+        comment: "тестовый комментарий"
+      },
+      {
+        id: "hotel4",
+        name: "Приморский Двор",
+        country: "Украина",
+        city: "Одесса",
+        discountPercent: 10,
+        rooms: [
+          {
+            type: "Номер Эконом",
+            rack: { single: 900, double: 1300, breakfast: "отдельно 150 грн" },
+            net:  { single: 810,  double: 1170, breakfast: "отдельно 150 грн" }
+          },
+          {
+            type: "Номер Стандарт",
+            rack: { single: 1200, double: 1700, breakfast: "отдельно 200 грн" },
+            net:  { single: 1080, double: 1530, breakfast: "отдельно 200 грн" }
+          },
+          {
+            type: "Номер Комфорт",
+            rack: { single: 1500, double: 1950, breakfast: "входит в стоимость" },
+            net:  { single: 1350, double: 1755, breakfast: "входит в стоимость" }
+          },
+          {
+            type: "Номер Сьюит",
+            rack: { single: 2800, double: 3200, breakfast: "входит в стоимость" },
+            net:  { single: 2520, double: 2880, breakfast: "входит в стоимость" }
+          }
+        ],
+        comment: "тестовый комментарий"
+      }
+    ];
+
+    // Состояние раскрытых отелей
+    const expanded = new Set();
+
+    function formatPriceBlock(prices) {
+      return `
+        <div class="price-block">
+          <div class="price-line"><span class="price-label">1 чел:</span> ${prices.single} грн</div>
+          <div class="price-line"><span class="price-label">2 чел:</span> ${prices.double} грн</div>
+          <div class="price-line"><span class="price-label">Завтрак:</span> ${prices.breakfast}</div>
+        </div>
+      `;
+    }
+
+    function populateFilters() {
+      const countries = [...new Set(hotels.map(h => h.country))].sort();
+      const cities = [...new Set(hotels.map(h => h.city))].sort();
+
+      const countrySelect = document.getElementById('country');
+      const citySelect = document.getElementById('city');
+
+      countries.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        countrySelect.appendChild(opt);
+      });
+
+      cities.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        citySelect.appendChild(opt);
+      });
+    }
+
+    function toggleHotel(hotelId) {
+      if (expanded.has(hotelId)) {
+        expanded.delete(hotelId);
+      } else {
+        expanded.add(hotelId);
+      }
+      renderTable();
+    }
+
+    function renderTable() {
+      const country = document.getElementById('country').value;
+      const city = document.getElementById('city').value;
+      const search = document.getElementById('search').value.trim().toLowerCase();
+
+      const filtered = hotels.filter(h => {
+        if (country && h.country !== country) return false;
+        if (city && h.city !== city) return false;
+        if (search && !h.name.toLowerCase().includes(search)) return false;
+        return true;
+      });
+
+      const tbody = document.getElementById('table-body');
+      const noResults = document.getElementById('no-results');
+
+      tbody.innerHTML = '';
+
+      if (filtered.length === 0) {
+        noResults.style.display = 'block';
+        return;
+      }
+
+      noResults.style.display = 'none';
+
+      filtered.forEach(hotel => {
+        const isExpanded = expanded.has(hotel.id);
+
+        // Строка отеля (кликабельная)
+        const hotelTr = document.createElement('tr');
+        hotelTr.className = 'hotel-row' + (isExpanded ? ' expanded' : '');
+        hotelTr.innerHTML = `
+          <td>
+            <div class="hotel-name">
+              <span class="toggle-icon">▶</span>
+              ${hotel.name}
+              <span class="rooms-count">(${hotel.rooms.length} номеров)</span>
+            </div>
+            <div class="meta">${hotel.country}, ${hotel.city}</div>
+          </td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>
+            <span class="comment">${hotel.comment}</span>
+          </td>
+        `;
+        hotelTr.addEventListener('click', () => toggleHotel(hotel.id));
+        tbody.appendChild(hotelTr);
+
+        // Строки номеров (показываются только если раскрыт)
+        hotel.rooms.forEach(room => {
+          const roomTr = document.createElement('tr');
+          roomTr.className = 'room-row' + (isExpanded ? ' visible' : '');
+          roomTr.innerHTML = `
+            <td>
+              <span class="room-type">${room.type}</span>
+            </td>
+            <td>${formatPriceBlock(room.rack)}</td>
+            <td>${formatPriceBlock(room.net)}</td>
+            <td>
+              <span class="discount">${hotel.discountPercent}%</span>
+            </td>
+            <td></td>
+          `;
+          tbody.appendChild(roomTr);
+        });
+      });
+    }
+
+    // Init
+    populateFilters();
+    renderTable();
+
+    document.getElementById('country').addEventListener('change', renderTable);
+    document.getElementById('city').addEventListener('change', renderTable);
+    document.getElementById('search').addEventListener('input', renderTable);
+  </script>
+</body>
+</html>
